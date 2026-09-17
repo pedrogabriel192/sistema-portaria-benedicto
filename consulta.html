@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portaria Escolar - Consulta de Alunos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header-acoes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .btn-link {
+            background-color: #34495e;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-link:hover {
+            background-color: #2c3e50;
+        }
+        .busca-container {
+            margin-bottom: 25px;
+        }
+        .campo-busca {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .campo-busca:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .grade-alunos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card-aluno {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .card-aluno:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Botão de alterar foto */
+        .btn-atualizar-foto {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-atualizar-foto:hover {
+            background-color: #d35400;
+        }
+        
+        .area-clicavel-zoom {
+            cursor: pointer;
+        }
+        
+        .foto-consulta {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 3px solid #34495e;
+            margin-bottom: 15px;
+            background-color: #eaeded;
+        }
+        .nome-aluno {
+            font-size: 18px;
+            color: #2c3e50;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+        }
+        .detalhe-aluno {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin: 5px 0;
+        }
+        .telefone-destaque {
+            font-size: 15px;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 10px;
+            background: #fdf2f2;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* --- BOTÃO DO WHATSAPP --- */
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            width: 100%;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+        }
+        .btn-whatsapp:hover {
+            background-color: #128c7e;
+        }
+        
+        .sem-resultados {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 16px;
+            padding: 40px;
+        }
+
+        /* MODAL (ZOOM) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+        .conteudo-modal {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 80%;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .foto-ampliada {
+            max-width: 100%;
+            max-height: 65vh;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .legenda-modal {
+            margin-top: 15px;
+            color: #2c3e50;
+        }
+        .legenda-modal h3 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+        }
+        .botao-fechar {
+            position: absolute;
+            top: -45px;
+            right: 0;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .botao-fechar:hover {
+            color: #e74c3c;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-acoes">
+        <h2>Consulta de Alunos - Portaria</h2>
+        <a href="/index.html" class="btn-link">Voltar para o Cadastro</a>
+    </div>
+
+    <div class="busca-container">
+        <input type="text" id="inputBusca" class="campo-busca" placeholder="Digite o nome do aluno ou a turma para pesquisar...">
+    </div>
+
+    <div class="grade-alunos" id="listaAlunos">
+        </div>
+</div>
+
+<input type="file" id="inputTrocaFotoGlobal" accept="image/*" style="display: none;">
+
+<div id="janelaModal" class="modal" onclick="fecharZoom()">
+    <div class="conteudo-modal" onclick="event.stopPropagation()">
+        <span class="botao-fechar" onclick="fecharZoom()">&times;</span>
+        <img id="imgModal" class="foto-ampliada" src="" alt="Foto Ampliada">
+        <div class="legenda-modal">
+            <h3 id="nomeModal">Nome do Aluno</h3>
+            <p id="turmaModal">Turma</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let todosOsAlunos = [];
+    let alunoSelecionadoParaTroca = null;
+
+    async function obterAlunos() {
+        try {
+            const resposta = await fetch('/alunos');
+            todosOsAlunos = await resposta.json();
+            renderizarAlunos(todosOsAlunos);
+        } catch (error) {
+            console.error("Erro ao buscar alunos:", error);
+        }
+    }
+
+    function renderizarAlunos(lista) {
+        const container = document.getElementById('listaAlunos');
+        container.innerHTML = "";
+
+        if (lista.length === 0) {
+            container.innerHTML = `<div class="sem-resultados">Nenhum aluno encontrado.</div>`;
+            return;
+        }
+
+        lista.forEach(aluno => {
+            const card = document.createElement('div');
+            card.className = 'card-aluno';
+            
+            card.innerHTML = `
+                <button class="btn-atualizar-foto" title="Atualizar Foto de Ano Letivo">📷 Foto</button>
+                
+                <div class="area-clicavel-zoom">
+                    <img src="/fotos/${aluno.foto}" class="foto-consulta" alt="Foto de ${aluno.nome}" onerror="this.src='https://via.placeholder.com/180?text=Sem+Foto'">
+                    <div class="nome-aluno">${aluno.nome}</div>
+                    <div class="detalhe-aluno"><strong>Turma:</strong> ${aluno.turma}</div>
+                    <div class="telefone-destaque">📞 Pais: ${aluno.telefone}</div>
+                </div>
+
+                <button class="btn-whatsapp">⚠️ Notificar Atraso</button>
+            `;
+
+            card.querySelector('.area-clicavel-zoom').onclick = () => abrirZoom(aluno);
+
+            card.querySelector('.btn-atualizar-foto').onclick = (e) => {
+                e.stopPropagation();
+                alunoSelecionadoParaTroca = aluno;
+                document.getElementById('inputTrocaFotoGlobal').click();
+            };
+
+            // AÇÃO DE DISPARAR O WHATSAPP
+            card.querySelector('.btn-whatsapp').onclick = (e) => {
+                e.stopPropagation(); // Evita abrir o zoom ao clicar no botão
+                enviarMensagemAtraso(aluno);
+            };
+
+            container.appendChild(card);
+        });
+    }
+
+    // --- FUNÇÃO DE ENVIO DO WHATSAPP COM DATA E HORA EM TEMPO REAL ---
+    function enviarMensagemAtraso(aluno) {
+        // Limpa o telefone deixando apenas os números (remove parênteses, traços e espaços)
+        let telefoneLimpo = aluno.telefone.replace(/\D/g, '');
+
+        // Caso o número digitado não inclua o código do país (55 para Brasil), o sistema adiciona automaticamente
+        if (telefoneLimpo.length <= 11) {
+            telefoneLimpo = '55' + telefoneLimpo;
+        }
+
+        // Obtém a data e a hora atual do momento exato do clique
+        const agora = new Date();
+        const dataAtual = agora.toLocaleDateString('pt-BR');
+        const horaAtual = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        // Monta o texto da mensagem (Codificado para URLs)
+        const mensagemTexto = `Olá, responsável pelo aluno(a) *${aluno.nome}*. Informamos que seu filho chegou atrasado hoje, dia *${dataAtual}* às *${horaAtual}*.`;
+        const mensagemCodificada = encodeURIComponent(mensagemTexto);
+
+        // Constrói o link oficial do WhatsApp
+        const urlWhatsapp = `https://wa.me/${telefoneLimpo}?text=${mensagemCodificada}`;
+
+        // Abre em uma nova aba do navegador para o porteiro enviar
+        window.open(urlWhatsapp, '_blank');
+    }
+
+    // Ouvinte da troca de foto
+    document.getElementById('inputTrocaFotoGlobal').addEventListener('change', async function(e) {
+        const arquivo = e.target.files[0];
+        if (!arquivo || !alunoSelecionadoParaTroca) return;
+
+        const formData = new FormData();
+        formData.append('nomeAluno', alunoSelecionadoParaTroca.nome);
+        formData.append('novaFoto', arquivo);
+
+        try {
+            const resposta = await fetch('/atualizar-foto', { method: 'POST', body: formData });
+            const resultado = await resposta.json();
+            if (resultado.sucesso) {
+                alert(resultado.mensagem);
+                obterAlunos();
+            } else {
+                alert('Erro ao atualizar: ' + resultado.mensagem);
+            }
+        } catch (error) {
+            alert('Erro na comunicação com o servidor.');
+        }
+        e.target.value = "";
+    });
+
+    // ZOOM
+    function abrirZoom(aluno) {
+        const modal = document.getElementById('janelaModal');
+        const imgModal = document.getElementById('imgModal');
+        const nomeModal = document.getElementById('nomeModal');
+        const turmaModal = document.getElementById('turmaModal');
+
+        imgModal.src = `/fotos/${aluno.foto}`;
+        nomeModal.innerText = aluno.nome;
+        turmaModal.innerText = `Turma: ${aluno.turma} | Contato: ${aluno.telefone}`;
+
+        modal.style.display = 'flex';
+    }
+
+    function fecharZoom() {
+        document.getElementById('janelaModal').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') fecharZoom();
+    });
+
+    // Busca em tempo real
+    document.getElementById('inputBusca').addEventListener('input', function(e) {
+        const termoBusca = e.target.value.toLowerCase();
+        const alunosFiltrados = todosOsAlunos.filter(aluno => {
+            return aluno.nome.toLowerCase().includes(termoBusca) || aluno.turma.toLowerCase().includes(termoBusca);
+        });
+        renderizarAlunos(alunosFiltrados);
+    });
+
+    obterAlunos();
+</script>
+
+</body>
+</html>

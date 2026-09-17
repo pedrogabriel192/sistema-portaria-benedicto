@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portaria Escolar - Cadastro de Alunos</title>
+    <title>Portaria Escolar - Sistema de Cadastro</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,10 +20,28 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        h2, h3 {
-            color: #2c3e50;
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 2px solid #ecf0f1;
             padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2, h3 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .btn-consulta {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-consulta:hover {
+            background-color: #2980b9;
         }
         .form-group {
             margin-bottom: 15px;
@@ -33,14 +51,52 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="text"], input[type="tel"], select, input[type="file"] {
+        input[type="text"], input[type="tel"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
         }
-        button {
+        
+        /* --- ESTILIZAÇÃO DA ÁREA DA FOTO --- */
+        .container-upload-foto {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border: 1px dashed #bdc3c7;
+            border-radius: 6px;
+        }
+        .preview-cadastro {
+            width: 100px;
+            height: 100px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid #bdc3c7;
+            background-color: #eaeded;
+        }
+        /* Esconde o input padrão feio do navegador */
+        input[type="file"] {
+            display: none;
+        }
+        /* Transforma uma label em um botão bonito para alterar a foto */
+        .btn-alterar-foto {
+            background-color: #34495e;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-block;
+            font-weight: normal;
+        }
+        .btn-alterar-foto:hover {
+            background-color: #2c3e50;
+        }
+        
+        .btn-salvar {
             background-color: #27ae60;
             color: white;
             padding: 12px 20px;
@@ -49,8 +105,10 @@
             cursor: pointer;
             font-size: 16px;
             width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
         }
-        button:hover {
+        .btn-salvar:hover {
             background-color: #219150;
         }
         table {
@@ -79,33 +137,42 @@
 <body>
 
 <div class="container">
-    <h2>Cadastro de Aluno - Portaria Escolar</h2>
+    <div class="header-container">
+        <h2>Cadastro de Aluno</h2>
+        <a href="/consulta.html" class="btn-consulta">Ir para Consulta</a>
+    </div>
     
-    <form id="formCadastro">
+    <form id="formCadastro" enctype="multipart/form-data">
         <div class="form-group">
             <label for="nome">Nome Completo do Aluno:</label>
-            <input type="text" id="nome" required placeholder="Ex: João Silva">
+            <input type="text" id="nome" name="nome" required placeholder="Ex: João Silva">
         </div>
 
         <div class="form-group">
             <label for="turma">Turma / Ano:</label>
-            <input type="text" id="turma" required placeholder="Ex: 7º Ano A - Matutino">
+            <input type="text" id="turma" name="turma" required placeholder="Ex: 7º Ano A">
         </div>
 
         <div class="form-group">
             <label for="telefone">Telefone dos Pais / Responsáveis:</label>
-            <input type="tel" id="telefone" required placeholder="Ex: (11) 99999-9999">
+            <input type="tel" id="telefone" name="telefone" required placeholder="Ex: (11) 99999-9999">
         </div>
 
         <div class="form-group">
-            <label for="foto">Foto do Aluno:</label>
-            <input type="file" id="foto" accept="image/*" required>
+            <label>Foto do Aluno:</label>
+            <div class="container-upload-foto">
+                <img id="previewFoto" class="preview-cadastro" src="https://via.placeholder.com/100?text=Sem+Foto" alt="Prévia">
+                <div>
+                    <input type="file" id="foto" name="foto" accept="image/*">
+                    <label for="foto" class="btn-alterar-foto" id="textoBotaoFoto">Escolher Foto</label>
+                </div>
+            </div>
         </div>
 
-        <button type="submit">Cadastrar Aluno</button>
+        <button type="submit" class="btn-salvar">Cadastrar e Salvar Aluno</button>
     </form>
 
-    <h3>Alunos Cadastrados</h3>
+    <h3 style="margin-top: 40px;">Últimos Alunos Cadastrados</h3>
     <table id="tabelaAlunos">
         <thead>
             <tr>
@@ -121,42 +188,79 @@
 </div>
 
 <script>
-    document.getElementById('formCadastro').addEventListener('submit', function(e) {
-        e.preventDefault(); // Impede a página de recarregar
+    const form = document.getElementById('formCadastro');
+    const tabelaCorpo = document.querySelector('#tabelaAlunos tbody');
+    const inputFoto = document.getElementById('foto');
+    const previewFoto = document.getElementById('previewFoto');
+    const textoBotaoFoto = document.getElementById('textoBotaoFoto');
 
-        // Captura os valores dos campos
-        const nome = document.getElementById('nome').value;
-        const turma = document.getElementById('turma').value;
-        const telefone = document.getElementById('telefone').value;
-        const fotoInput = document.getElementById('foto');
-
-        // Processa a imagem para exibição local imediata
-        const arquivo = fotoInput.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-            const urlImagem = event.target.result;
-
-            // Cria uma nova linha na tabela
-            const tabela = document.getElementById('tabelaAlunos').getElementsByTagName('tbody')[0];
-            const novaLinha = tabela.insertRow();
-
-            // Insere as células preenchidas
-            novaLinha.innerHTML = `
-                <td><img src="${urlImagem}" class="foto-aluno" alt="Foto de ${nome}"></td>
-                <td><strong>${nome}</strong></td>
-                <td>${turma}</td>
-                <td>${telefone}</td>
-            `;
-
-            // Limpa o formulário para o próximo cadastro
-            document.getElementById('formCadastro').reset();
-        };
-
+    // --- SCRIPT PARA MONITORAR A ALTERAÇÃO DA FOTO ---
+    inputFoto.addEventListener('change', function(e) {
+        const arquivo = e.target.files[0];
+        
         if (arquivo) {
+            const reader = new FileReader();
+            
+            // Quando terminar de ler a foto, atualiza a imagem de prévia na tela
+            reader.onload = function(event) {
+                previewFoto.src = event.target.result;
+                textoBotaoFoto.innerText = "Alterar Foto"; // Muda o texto para indicar que pode ser trocada
+                textoBotaoFoto.style.backgroundColor = "#e67e22"; // Muda a cor para dar destaque de alteração
+            };
+            
             reader.readAsDataURL(arquivo);
         }
     });
+
+    // Função para renderizar uma linha na tabela
+    function adicionarLinhaTabela(aluno) {
+        const novaLinha = tabelaCorpo.insertRow();
+        novaLinha.innerHTML = `
+            <td><img src="/fotos/${aluno.foto}" class="foto-aluno" alt="Foto"></td>
+            <td><strong>${aluno.nome}</strong></td>
+            <td>${aluno.turma}</td>
+            <td>${aluno.telefone}</td>
+        `;
+    }
+
+    // Carregar alunos já salvos ao abrir a página
+    async function carregarAlunos() {
+        tabelaCorpo.innerHTML = "";
+        const resposta = await fetch('/alunos');
+        const alunos = await resposta.json();
+        // Exibe apenas os últimos 5 cadastrados na tabela do cadastro para não poluir
+        alunos.slice(-5).forEach(adicionarLinhaTabela);
+    }
+
+    // Enviar dados para o servidor backend salvar
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        const resposta = await fetch('/cadastrar', {
+            method: 'POST',
+            body: formData
+        });
+
+        const resultado = await resposta.json();
+
+        if (resultado.sucesso) {
+            alert(resultado.mensagem);
+            adicionarLinhaTabela(resultado.aluno);
+            
+            // Reseta o formulário e volta a foto para o padrão "Sem Foto"
+            form.reset();
+            previewFoto.src = "https://via.placeholder.com/100?text=Sem+Foto";
+            textoBotaoFoto.innerText = "Escolher Foto";
+            textoBotaoFoto.style.backgroundColor = "#34495e";
+        } else {
+            alert('Erro: ' + resultado.mensagem);
+        }
+    });
+
+    // Inicializa a tabela ao abrir
+    carregarAlunos();
 </script>
 
 </body>

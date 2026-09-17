@@ -1,0 +1,5 @@
+precisa primeiro instalar java virtual machine
+
+executar o arquivo iniciar-sistema.bat
+
+executar o arquivo portaria escolar

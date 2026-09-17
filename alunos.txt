@@ -1,0 +1,7 @@
+Data: 07/07/2026, 11:06:24 | Nome: pedro | Turma: professor | Tel: 1111 | Foto: aluno-sem_turma_1789573395286.jpg
+Data: 07/07/2026, 11:11:19 | Nome: felipe | Turma: 3d | Tel: 5451621616 | Foto: aluno-sem_turma_1789573399606.jpg
+Data: 07/07/2026, 11:17:49 | Nome: sandra | Turma: direção | Tel: 64651265681 | Foto: aluno-sem_turma_1789573403854.jpg
+1783434135540.jpg
+Data: 07/07/2026, 11:45:17 | Nome: joao | Turma: 7a | Tel: 123123123 | Foto: joao-7a_1783435517464.jpg
+Data: 07/07/2026, 11:47:04 | Nome: cleber | Turma: 6a | Tel: 123214134 | Foto: cleber-6a_1783435624987.jpg
+Data: 07/07/2026, 18:41:51 | Nome: pedro gabriel | Turma: 9d | Tel: 41996044112 | Foto: pedro_gabriel-9d_1783460511813.jpg
